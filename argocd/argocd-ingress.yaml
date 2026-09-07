@@ -1,0 +1,17 @@
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: argocd
+  namespace: argocd
+spec:
+  entryPoints:
+    - web
+  routes:
+    - match: Host(`localhost`) && (PathPrefix(`/argocd`) || PathRegexp(`^/argocd(.*)`))
+      kind: Rule
+      services:
+        - name: argocd-server
+          port: 80
+          scheme: http
+          middlewares:
+            - name: limit-client

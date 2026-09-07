@@ -1,0 +1,12 @@
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: limit-client
+  namespace: argocd
+spec:
+  rateLimit:
+    average: 100
+    burst: 50
+    period: 30s
+    sourceCriterion:
+      # requestHeaderName: X-Forwarded-For

@@ -1,0 +1,17 @@
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: sample
+  namespace: applications
+spec:
+  entryPoints:
+    - web
+  routes:
+    - match: Host(`localhost`) && Path(`/sample`)
+      kind: Rule
+      services:
+        - name: sample
+          port: 8090
+          scheme: http
+          middlewares:
+            - name: limit-client

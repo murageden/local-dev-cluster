@@ -1,0 +1,24 @@
+deployment:
+  kind: DaemonSet
+
+ports:
+  web:
+    port: 30000
+    hostPort: 80
+  websecure:
+    port: 30443
+    hostPort: 443
+
+nodeSelector:
+  ingress-ready: "true"
+
+service:
+  enabled: true
+  type: NodePort
+  # Let Kubernetes assign valid 30000+ ports for the Service itself.
+  # Your external traffic skips these and hits the hostPorts (80/443) directly.
+  ports:
+    web:
+      nodePort: null
+    websecure:
+      nodePort: null

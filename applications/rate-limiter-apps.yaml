@@ -1,0 +1,12 @@
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: limit-client
+  namespace: applications
+spec:
+  rateLimit:
+    average: 5
+    burst: 3
+    period: 3s
+    sourceCriterion:
+      # requestHeaderName: X-Forwarded-For
