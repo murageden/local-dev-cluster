@@ -1,21 +1,19 @@
 apiVersion: traefik.io/v1alpha1
 kind: IngressRoute
 metadata:
-  name: spring
-  # Deploy this CRD in the same namespace where Traefik is running or where you manage ingress
+  name: react
   namespace: applications # Match your app's namespace
 spec:
   entryPoints:
     - web
     - websecure
   routes:
-    - match: Host(`localhost`) && PathRegexp(`/api/v1/(.*)`)
+    - match: Host(`localhost`) && (PathPrefix(`/react`) || PathRegexp(`^/react(.*)`))
       kind: Rule
       services:
-        - name: spring-app
+        - name: react-app
           namespace: applications
           port: 8080
           scheme: http
           middlewares:
             - name: limit-client
-            - name: cors-headers-allow-all

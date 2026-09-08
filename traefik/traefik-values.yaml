@@ -3,7 +3,7 @@ deployment:
 
 ports:
   web:
-    port: 30000
+    port: 30080
     hostPort: 80
   websecure:
     port: 30443
@@ -15,8 +15,6 @@ nodeSelector:
 service:
   enabled: true
   type: NodePort
-  # Let Kubernetes assign valid 30000+ ports for the Service itself.
-  # Your external traffic skips these and hits the hostPorts (80/443) directly.
   ports:
     web:
       nodePort: null

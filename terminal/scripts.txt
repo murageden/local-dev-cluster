@@ -1,0 +1,59 @@
+#------
+kind create cluster --name local-dev-cluster --config kind/kind-config.yaml
+
+# ------
+cd tf-scripts
+terraform init
+terraform plan -out "main.tfplan"
+terraform apply "main.tfplan"
+
+#-------
+helm upgrade --install traefik traefik/traefik \
+-n traefik --create-namespace -f traefik/traefik-values.yaml
+
+#--------
+helm list -A
+
+# ----
+kubectl patch svc traefik -n traefik --type='json' -p='[{"op": "replace", "path": "/spec/type", "value": "NodePort"}, {"op": "replace", "path": "/spec/ports/0/nodePort", "value": 30000}, {"op": "replace", "path": "/spec/ports/1/nodePort", "value": 30443}]'
+
+#------- Expose ArgoCD via traefik
+kubectl apply -f argocd/rate-limiter-argocd.yaml
+kubectl apply -f argocd/argocd-ingress.yaml
+
+# -- Confirm argoCD is now accessible via browser
+kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d
+
+#---- Deploy the applications via argoCD
+
+#--- Deploy Postgres PVC then Postgres via ArgoCD Dashboard
+
+#------- Deploy Spring Boot App via ArgoCD Dashboard
+kind load docker-image bookstore-springboot-spring-app --name local-dev-cluster
+
+#-----
+docker exec -it $(kind get clusters | head -1)-control-plane crictl images
+
+
+# ------ Expose Backend via Traefik
+kubectl apply -f applications/rate-limiter-apps.yaml
+kubectl apply -f applications/cors-policy-headers.yaml
+kubectl apply -f applications/spring-ingress.yaml
+
+
+#----- Deploy the React-Redux App via ArgoCD Dashboard
+kind load docker-image bookstore-react-react-app --name local-dev-cluster 
+
+# ------- Expose Frontend via Traefik
+kubectl apply -f applications/react-ingress.yaml
+
+# ----- use postman to generate bookstore content
+cd Projects/python_scripts/db_seeding/ \
+&& source .env/bin/activate \
+&& watch -n 3 python3 db_seeder.py
+
+# ---- use postman to query the content
+watch -n 3 postman request GET http://localhost:8000/api/v1/books
+
+#------- Destroy it
+kind delete cluster --name local-dev-cluster
