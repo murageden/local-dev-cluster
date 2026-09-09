@@ -48,7 +48,7 @@ kind load docker-image bookstore-react-react-app --name local-dev-cluster
 kubectl apply -f applications/react-ingress.yaml
 
 # ----- use postman to generate bookstore content
-cd Projects/python_scripts/db_seeding/ \
+cd ~/Projects/python_scripts/db_seeding/ \
 && source .env/bin/activate \
 && watch -n 3 python3 db_seeder.py
 
