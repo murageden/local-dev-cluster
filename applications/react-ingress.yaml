@@ -8,7 +8,7 @@ spec:
     - web
     - websecure
   routes:
-    - match: Host(`localhost`) && (PathPrefix(`/react`) || PathRegexp(`^/react(.*)`))
+    - match: Host(`localhost`) && Path(`/sample`)
       kind: Rule
       services:
         - name: react-app
